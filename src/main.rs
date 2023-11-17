@@ -3,8 +3,7 @@ use clap::Parser;
 use rusqlite::Connection;
 
 use std::{
-    fs::{self},
-    io::Write,
+    fs,
     path::{Path, PathBuf},
 };
 use types::{Cookie, MozSession};
@@ -90,39 +89,40 @@ fn get_profile_dir(base_dir: &Path, profile: Option<&str>) -> PathBuf {
 }
 
 fn get_sqlite_cookies(db_path: &Path) -> Vec<Cookie> {
-    let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
-    let db_data = fs::read(db_path).unwrap();
-    tmpfile.write_all(&db_data).unwrap();
+    // let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
+    // let db_data = fs::read(db_path).unwrap();
+    // tmpfile.write_all(&db_data).unwrap();
 
-    let conn = Connection::open(tmpfile).unwrap();
+    // let conn = Connection::open(tmpfile).unwrap();
+    let conn = Connection::open(db_path).unwrap();
     let mut stmt = conn.prepare(
         "SELECT name, value, host, path, expiry, isHttpOnly, isSecure, sameSite FROM moz_cookies"
     ).unwrap();
-    stmt.query_map([], |row| {
-        Ok(Cookie {
-            name: row.get(0).unwrap(),
-            value: row.get(1).unwrap(),
-            domain: row.get(2).unwrap(),
-            path: row.get(3).unwrap(),
-            expires: row.get(4).ok(),
-            http_only: row.get(5).ok(),
-            secure: row.get(6).ok(),
-            same_site: row.get(7).ok(),
+
+    let cookie_iter = stmt
+        .query_map([], |row| {
+            Ok(Cookie {
+                name: row.get(0).unwrap(),
+                value: row.get(1).unwrap(),
+                domain: row.get(2).unwrap(),
+                path: row.get(3).unwrap(),
+                expires: row.get(4).ok(),
+                http_only: row.get(5).ok(),
+                secure: row.get(6).ok(),
+                same_site: row.get(7).ok(),
+            })
         })
-    })
-    .unwrap()
-    .flatten()
-    .collect()
+        .unwrap();
+
+    cookie_iter.map(|c| c.expect("Row Error")).collect()
 }
 
 fn get_session_cookies(file_path: &Path) -> Vec<Cookie> {
     // Remove mozilla non standard header
     let bytes = &fs::read(file_path).unwrap()[8..];
 
-    let json: MozSession = serde_json::from_str(
-        &String::from_utf8(lz4::block::decompress(bytes, None).unwrap()).unwrap(),
-    )
-    .unwrap();
+    let json: MozSession =
+        serde_json::from_slice(&lz4::block::decompress(bytes, None).unwrap()).unwrap();
 
     json.cookies
 }
