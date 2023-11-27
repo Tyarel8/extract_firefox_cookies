@@ -85,6 +85,22 @@ fn get_profile_dir(base_dir: &Path, profile: Option<&str>) -> PathBuf {
         }
     }
 
+    for path in fs::read_dir(base_dir).unwrap() {
+        let path = path.unwrap();
+        if path.file_type().unwrap().is_dir() {
+            if path
+                .path()
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .contains(profile.unwrap_or("default"))
+            {
+                return path.path();
+            }
+        }
+    }
+
     unreachable!()
 }
 
