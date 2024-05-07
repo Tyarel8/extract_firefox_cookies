@@ -67,6 +67,12 @@ fn main() {
                     .join("")
             )
         }
+        OutputFormat::Json => {
+            println!(
+                "{}",
+                serde_json::to_string(&cookies).expect("Not serializable to json")
+            )
+        }
     }
 }
 

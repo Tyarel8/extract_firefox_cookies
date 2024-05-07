@@ -22,4 +22,6 @@ pub enum OutputFormat {
     Javascript,
     /// Netscape format, compatible with curl & wget.
     Netscape,
+    /// Json format
+    Json,
 }
