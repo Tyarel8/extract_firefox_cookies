@@ -12,12 +12,13 @@ Options:
 
   -o, --output-format <OUTPUT_FORMAT>
           Cookie output format
-
+          
           [default: javascript]
 
           Possible values:
           - javascript: Default javascript format
           - netscape:   Netscape format, compatible with curl & wget
+          - json:       Json format
 
   -h, --help
           Print help (see a summary with '-h')
