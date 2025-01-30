@@ -5,6 +5,7 @@ use serde_json::Value;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cookie {
+    #[serde(default)]
     pub name: String,
     pub value: String,
     #[serde(rename(deserialize = "host"))]
