@@ -21,7 +21,10 @@ const PROFILES_DIR: &str = "~/.mozilla/firefox";
 fn main() {
     let cli = cli::Cli::parse();
 
-    let profiles_dir: PathBuf = PathBuf::from(shellexpand::tilde(PROFILES_DIR).to_string());
+    let profiles_dir: PathBuf = match cli.profile_dir {
+        Some(p) => PathBuf::from(shellexpand::tilde(&p.to_string_lossy()).to_string()),
+        None => PathBuf::from(shellexpand::tilde(PROFILES_DIR).to_string()),
+    };
 
     if !profiles_dir.exists() {
         eprintln!(

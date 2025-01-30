@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, ValueEnum};
 
 #[derive(Parser)]
@@ -6,6 +8,9 @@ pub struct Cli {
     /// Use non-default firefox profile
     #[arg(short, long)]
     pub profile: Option<String>,
+    /// Use non-default firefox profile dir
+    #[arg(long)]
+    pub profile_dir: Option<PathBuf>,
     /// Filter the cookies by domain
     /// (matches `<DOMAIN>` and `.<DOMAIN>`)
     #[arg(short, long)]
