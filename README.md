@@ -7,6 +7,9 @@ Options:
   -p, --profile <PROFILE>
           Use non-default firefox profile
 
+      --profile-dir <PROFILE_DIR>
+          Use non-default firefox profile dir
+
   -d, --domain <DOMAIN>
           Filter the cookies by domain (matches `<DOMAIN>` and `.<DOMAIN>`)
 
