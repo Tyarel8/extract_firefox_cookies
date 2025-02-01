@@ -5,6 +5,7 @@ use rusqlite::Connection;
 use std::{
     fs,
     path::{Path, PathBuf},
+    process::exit,
 };
 use types::{Cookie, MozSession};
 
@@ -30,7 +31,8 @@ fn main() {
         eprintln!(
             "Path to firefox profiles doesn't exist: `{}`",
             profiles_dir.display()
-        )
+        );
+        exit(1);
     }
 
     let profile_dir = get_profile_dir(&profiles_dir, cli.profile.as_deref());
@@ -110,7 +112,18 @@ fn get_profile_dir(base_dir: &Path, profile: Option<&str>) -> PathBuf {
         }
     }
 
-    unreachable!()
+    // get first if not default
+    if profile.is_none() {
+        for path in fs::read_dir(base_dir).unwrap() {
+            let path = path.unwrap();
+            if path.file_type().unwrap().is_dir() {
+                return path.path();
+            }
+        }
+    }
+
+    eprintln!("No profile found");
+    exit(1);
 }
 
 fn get_sqlite_cookies(db_path: &Path) -> Vec<Cookie> {
